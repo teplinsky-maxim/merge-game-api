@@ -1,7 +1,7 @@
 package main
 
-import "merge-api/internal/merge"
+import "merge-api/internal/app"
 
 func main() {
-	merge.Run()
+	app.Run()
 }

@@ -6,3 +6,8 @@ Who doesn't know what a merge-like game is? The rules are simple:
 
 My idea is to create an API to handle such mechanic, so anybody can use this API to create a 
 merge-like game
+
+Base idea 
+
+![img.png](img.png)
+
