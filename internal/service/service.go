@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"merge-api/internal/entity"
 	"merge-api/internal/repo"
 	"merge-api/internal/service/collection"
 )
 
 type Collection interface {
-	GetCollection(ctx context.Context, offset, limit uint)
+	GetCollection(ctx context.Context, input *collection.GetCollectionInput) ([]entity.Collection, error)
 }
 
 type Services struct {

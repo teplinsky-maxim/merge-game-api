@@ -35,5 +35,8 @@ func Run() {
 	app := fiber.New()
 	v1.NewRouter(app, services)
 
-	app.Listen("0.0.0.0:3000")
+	err = app.Listen("0.0.0.0:3000")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
