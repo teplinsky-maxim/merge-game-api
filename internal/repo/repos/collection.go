@@ -19,7 +19,7 @@ func (c *CollectionRepo) GetCollection(ctx context.Context, offset, limit uint) 
 	}
 	query, _, err := sq.
 		Select("*").
-		From("public.collections").
+		From("collections").
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).ToSql()
 	if err != nil {

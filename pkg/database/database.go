@@ -9,12 +9,53 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const TestsSchemaName = "tests"
+
+type DatabaseTest Database
 type Database struct {
 	DB *pgxpool.Pool
 }
 
 func NewDatabaseConnection(config *config.Config) (Database, error) {
-	dsn := makeDatabaseString(config)
+	return newDatabaseConnection(config, false)
+}
+
+func NewDatabaseTestConnection(config *config.Config) (DatabaseTest, error) {
+	connection, err := newDatabaseConnection(config, true)
+	if err != nil {
+		panic(err)
+	}
+	ctx := context.Background()
+	tx, err := connection.DB.Begin(ctx)
+	if err != nil {
+		panic(err)
+	}
+	stmt := "CREATE SCHEMA IF NOT EXISTS " + TestsSchemaName
+	if err != nil {
+		panic(err)
+	}
+	_, err = tx.Exec(ctx, stmt)
+	if err != nil {
+		panic(err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		panic(err)
+	}
+	err = RunMigrations(config, TestsSchemaName)
+	if err != nil {
+		panic(err)
+	}
+	return DatabaseTest(connection), nil
+}
+
+func newDatabaseConnection(config *config.Config, testConnection bool) (Database, error) {
+	schema := "public"
+	if testConnection {
+		schema = TestsSchemaName
+	}
+	dsn := makeDatabaseString(config, schema)
 	pgxConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return Database{}, err
@@ -35,9 +76,17 @@ func NewDatabaseConnection(config *config.Config) (Database, error) {
 	}, nil
 }
 
-func makeDatabaseString(config *config.Config) string {
-	template := "postgresql://%v:%v@%v:%v/%v?sslmode=disable"
+func makeDatabaseString(config *config.Config, schema string) string {
+	template := "postgresql://%v:%v@%v:%v/%v?sslmode=disable&search_path=%v"
 	dsn := fmt.Sprintf(template, config.Postgresql.User, config.Postgresql.Password,
-		config.Postgresql.Address, config.Postgresql.Port, config.Postgresql.Database)
+		config.Postgresql.Address, config.Postgresql.Port, config.Postgresql.Database, schema)
 	return dsn
+}
+
+func (r *DatabaseTest) SetUp(tableName string) {
+	stmt := fmt.Sprintf("TRUNCATE TABLE %v RESTART IDENTITY", tableName)
+	_, err := r.DB.Exec(context.Background(), stmt)
+	if err != nil {
+		panic(err)
+	}
 }

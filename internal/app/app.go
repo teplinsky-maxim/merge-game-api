@@ -21,7 +21,7 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	err = database.RunMigrations(cfg)
+	err = database.RunMigrations(cfg, "public")
 	if err != nil {
 		log.Fatal(err)
 	}
