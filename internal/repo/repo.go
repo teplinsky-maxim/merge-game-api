@@ -8,7 +8,8 @@ import (
 )
 
 type Collection interface {
-	GetCollection(ctx context.Context, offset, limit uint) ([]entity.Collection, error)
+	GetCollections(ctx context.Context, offset, limit uint) ([]entity.Collection, error)
+	GetCollection(ctx context.Context, collectionId uint) (entity.CollectionWithItems, error)
 }
 
 type Repositories struct {

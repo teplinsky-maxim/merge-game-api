@@ -8,7 +8,8 @@ import (
 )
 
 type Collection interface {
-	GetCollection(ctx context.Context, input *collection.GetCollectionInput) ([]entity.Collection, error)
+	GetCollections(ctx context.Context, input *collection.GetCollectionsInput) ([]entity.Collection, error)
+	GetCollection(ctx context.Context, input *collection.GetCollectionInput) (entity.CollectionWithItems, error)
 }
 
 type Services struct {

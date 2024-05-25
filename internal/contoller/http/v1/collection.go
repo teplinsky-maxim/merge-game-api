@@ -6,6 +6,7 @@ import (
 	"merge-api/internal/service"
 	"merge-api/internal/service/collection"
 	"net/http"
+	"strconv"
 )
 
 type collectionRoutes struct {
@@ -15,7 +16,8 @@ type collectionRoutes struct {
 func NewCollectionRouters(router *fiber.Router, service service.Collection) {
 	r := &collectionRoutes{collectionService: service}
 
-	(*router).Add("GET", "/collection", r.getCollection())
+	(*router).Add("GET", "/collections", r.getCollections())
+	(*router).Add("GET", "/collection/:id", r.getCollection())
 }
 
 func sendError(c *fiber.Ctx, errorCode int, err error) error {
@@ -24,12 +26,35 @@ func sendError(c *fiber.Ctx, errorCode int, err error) error {
 	})
 }
 
-func (r *collectionRoutes) getCollection() fiber.Handler {
+func (r *collectionRoutes) getCollections() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		params := new(collection.GetCollectionInput)
+		params := new(collection.GetCollectionsInput)
 		if err := c.QueryParser(params); err != nil {
 			return sendError(c, http.StatusBadRequest, err)
 		}
+
+		ctx := context.Background()
+		result, err := r.collectionService.GetCollections(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(result)
+	}
+}
+
+func (r *collectionRoutes) getCollection() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		collectionId := c.Params("id", "")
+		if collectionId == "" {
+			return c.SendStatus(http.StatusBadRequest)
+		}
+		params := new(collection.GetCollectionInput)
+		collectionIdNumber, err := strconv.Atoi(collectionId)
+		if err != nil {
+			return sendError(c, http.StatusBadRequest, err)
+		}
+		params.Id = uint(collectionIdNumber)
 
 		ctx := context.Background()
 		result, err := r.collectionService.GetCollection(ctx, params)
