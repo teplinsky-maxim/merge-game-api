@@ -16,6 +16,40 @@ type CollectionRepo struct {
 	database *database.Database
 }
 
+func (c *CollectionRepo) CreateCollection(ctx context.Context, name string) (entity.Collection, error) {
+	tx, err := c.database.DB.Begin(ctx)
+	if err != nil {
+		return entity.Collection{}, nil
+	}
+
+	stmt := sq.
+		Insert("collections").Columns("name").
+		Values(name).
+		Suffix("RETURNING id").
+		PlaceholderFormat(sq.Dollar)
+	query, args, err := stmt.ToSql()
+	if err != nil {
+		return entity.Collection{}, nil
+	}
+
+	rows, err := tx.Query(ctx, query, args...)
+	if err != nil {
+		return entity.Collection{}, nil
+	}
+
+	var result entity.Collection
+	for rows.Next() {
+		err = rows.Err()
+		if err != nil {
+			return entity.Collection{}, nil
+		} else {
+			err = rows.Scan(&result.ID)
+			result.Name = name
+		}
+	}
+	return result, err
+}
+
 func (c *CollectionRepo) GetCollections(ctx context.Context, offset, limit uint) ([]entity.Collection, error) {
 	conn, err := c.database.DB.Acquire(ctx)
 	defer conn.Release()

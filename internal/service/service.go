@@ -10,6 +10,7 @@ import (
 type Collection interface {
 	GetCollections(ctx context.Context, input *collection.GetCollectionsInput) ([]entity.Collection, error)
 	GetCollection(ctx context.Context, input *collection.GetCollectionInput) (entity.CollectionWithItems, error)
+	CreateCollection(ctx context.Context, input *collection.CreateCollectionInput) (entity.Collection, error)
 }
 
 type Services struct {

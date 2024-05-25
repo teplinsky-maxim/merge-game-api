@@ -8,3 +8,7 @@ type GetCollectionsInput struct {
 type GetCollectionInput struct {
 	Id uint
 }
+
+type CreateCollectionInput struct {
+	Name string
+}

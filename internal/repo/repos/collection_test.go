@@ -265,3 +265,33 @@ func TestCollectionRepo_GetCollection(t *testing.T) {
 		})
 	}
 }
+
+func TestCollectionRepo_CreateCollection(t *testing.T) {
+	err, connection, repo := prepareDatabaseWithRepo()
+	if err != nil {
+		panic(err)
+	}
+	connection.SetUp("collections")
+	ctx := context.Background()
+
+	tests := []struct {
+		name    string
+		args    string
+		want    entity.Collection
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := repo.CreateCollection(ctx, tt.args)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateCollection() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateCollection() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -18,12 +18,36 @@ func NewCollectionRouters(router *fiber.Router, service service.Collection) {
 
 	(*router).Add("GET", "/collections", r.getCollections())
 	(*router).Add("GET", "/collection/:id", r.getCollection())
+	(*router).Add("POST", "/collection", r.createCollection())
 }
 
 func sendError(c *fiber.Ctx, errorCode int, err error) error {
 	return c.Status(errorCode).JSON(map[string]string{
 		"error": err.Error(),
 	})
+}
+
+func (r *collectionRoutes) getCollection() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		collectionId := c.Params("id", "")
+		if collectionId == "" {
+			return c.SendStatus(http.StatusBadRequest)
+		}
+		params := new(collection.GetCollectionInput)
+		collectionIdNumber, err := strconv.Atoi(collectionId)
+		if err != nil {
+			return sendError(c, http.StatusBadRequest, err)
+		}
+		params.Id = uint(collectionIdNumber)
+
+		ctx := context.Background()
+		result, err := r.collectionService.GetCollection(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(result)
+	}
 }
 
 func (r *collectionRoutes) getCollections() fiber.Handler {
@@ -43,21 +67,15 @@ func (r *collectionRoutes) getCollections() fiber.Handler {
 	}
 }
 
-func (r *collectionRoutes) getCollection() fiber.Handler {
+func (r *collectionRoutes) createCollection() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		collectionId := c.Params("id", "")
-		if collectionId == "" {
-			return c.SendStatus(http.StatusBadRequest)
-		}
-		params := new(collection.GetCollectionInput)
-		collectionIdNumber, err := strconv.Atoi(collectionId)
-		if err != nil {
+		body := new(collection.CreateCollectionInput)
+		if err := c.BodyParser(body); err != nil {
 			return sendError(c, http.StatusBadRequest, err)
 		}
-		params.Id = uint(collectionIdNumber)
 
 		ctx := context.Background()
-		result, err := r.collectionService.GetCollection(ctx, params)
+		result, err := r.collectionService.CreateCollection(ctx, body)
 		if err != nil {
 			return err
 		}
