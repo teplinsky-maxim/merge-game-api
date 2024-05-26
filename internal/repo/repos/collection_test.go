@@ -295,3 +295,37 @@ func TestCollectionRepo_CreateCollection(t *testing.T) {
 		})
 	}
 }
+
+func TestCollectionRepo_CreateCollectionItems(t *testing.T) {
+	type fields struct {
+		database *database.Database
+	}
+	type args struct {
+		ctx   context.Context
+		items []entity.CollectionItem
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []entity.CollectionItem
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &CollectionRepo{
+				database: tt.fields.database,
+			}
+			got, err := c.CreateCollectionItems(tt.args.ctx, tt.args.items)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateCollectionItems() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateCollectionItems() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

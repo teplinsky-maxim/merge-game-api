@@ -10,14 +10,6 @@ type CollectionService struct {
 	repo repo.Collection
 }
 
-func (c *CollectionService) CreateCollection(ctx context.Context, input *CreateCollectionInput) (entity.Collection, error) {
-	collection, err := c.repo.CreateCollection(ctx, (*input).Name)
-	if err != nil {
-		return entity.Collection{}, nil
-	}
-	return collection, nil
-}
-
 func (c *CollectionService) GetCollections(ctx context.Context, input *GetCollectionsInput) ([]entity.Collection, error) {
 	if input.Limit == nil {
 		limit := uint(100)
@@ -38,6 +30,22 @@ func (c *CollectionService) GetCollection(ctx context.Context, input *GetCollect
 	collection, err := c.repo.GetCollection(ctx, (*input).Id)
 	if err != nil {
 		return entity.CollectionWithItems{}, nil
+	}
+	return collection, nil
+}
+
+func (c *CollectionService) CreateCollection(ctx context.Context, input *CreateCollectionInput) (entity.Collection, error) {
+	collection, err := c.repo.CreateCollection(ctx, (*input).Name)
+	if err != nil {
+		return entity.Collection{}, nil
+	}
+	return collection, nil
+}
+
+func (c *CollectionService) CreateCollectionItems(ctx context.Context, input *CreateCollectionItemsInput) ([]entity.CollectionItem, error) {
+	collection, err := c.repo.CreateCollectionItems(ctx, input.Items)
+	if err != nil {
+		return nil, nil
 	}
 	return collection, nil
 }

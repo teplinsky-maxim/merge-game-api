@@ -19,6 +19,7 @@ func NewCollectionRouters(router *fiber.Router, service service.Collection) {
 	(*router).Add("GET", "/collections", r.getCollections())
 	(*router).Add("GET", "/collection/:id", r.getCollection())
 	(*router).Add("POST", "/collection", r.createCollection())
+	(*router).Add("POST", "/collection/:id/items", r.createCollectionItems())
 }
 
 func sendError(c *fiber.Ctx, errorCode int, err error) error {
@@ -76,6 +77,23 @@ func (r *collectionRoutes) createCollection() fiber.Handler {
 
 		ctx := context.Background()
 		result, err := r.collectionService.CreateCollection(ctx, body)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(result)
+	}
+}
+
+func (r *collectionRoutes) createCollectionItems() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		body := new(collection.CreateCollectionItemsInput)
+		if err := c.BodyParser(body); err != nil {
+			return sendError(c, http.StatusBadRequest, err)
+		}
+
+		ctx := context.Background()
+		result, err := r.collectionService.CreateCollectionItems(ctx, body)
 		if err != nil {
 			return err
 		}

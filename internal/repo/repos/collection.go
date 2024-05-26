@@ -138,6 +138,46 @@ GROUP BY c.id;
 	return entity.CollectionWithItems{}, CollectionDoesNotExistsError
 }
 
+func (c *CollectionRepo) CreateCollectionItems(ctx context.Context, items []entity.CollectionItem) ([]entity.CollectionItem, error) {
+	tx, err := c.database.DB.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	stmt := sq.
+		Insert("collection_items").
+		Columns("collection_id", "name", "level", "mergeable", "can_create").
+		Suffix("RETURNING id, collection_id, name, level, mergeable, can_create").
+		PlaceholderFormat(sq.Dollar)
+
+	for _, item := range items {
+		stmt = stmt.Values(item.CollectionId, item.Name, item.Level, item.Mergeable, item.CanCreate)
+	}
+
+	query, args, err := stmt.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := tx.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var createdItems []entity.CollectionItem
+	for rows.Next() {
+		var item entity.CollectionItem
+		err = rows.Scan(&item.ID, &item.CollectionId, &item.Name, &item.Level, &item.Mergeable, &item.CanCreate)
+		if err != nil {
+			return nil, err
+		}
+		createdItems = append(createdItems, item)
+	}
+
+	return createdItems, nil
+}
+
 func NewCollectionRepo(database *database.Database) *CollectionRepo {
 	return &CollectionRepo{
 		database: database,

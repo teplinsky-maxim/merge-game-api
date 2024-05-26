@@ -11,6 +11,7 @@ type Collection interface {
 	GetCollections(ctx context.Context, offset, limit uint) ([]entity.Collection, error)
 	GetCollection(ctx context.Context, collectionId uint) (entity.CollectionWithItems, error)
 	CreateCollection(ctx context.Context, name string) (entity.Collection, error)
+	CreateCollectionItems(ctx context.Context, items []entity.CollectionItem) ([]entity.CollectionItem, error)
 }
 
 type Repositories struct {
