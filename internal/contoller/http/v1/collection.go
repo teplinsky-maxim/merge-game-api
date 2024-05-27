@@ -16,6 +16,7 @@ type collectionRoutes struct {
 func NewCollectionRouters(router *fiber.Router, service service.Collection) {
 	r := &collectionRoutes{collectionService: service}
 
+	// TODO: add remaining CRUD for collection and collection items
 	(*router).Add("GET", "/collections", r.getCollections())
 	(*router).Add("GET", "/collection/:id", r.getCollection())
 	(*router).Add("POST", "/collection", r.createCollection())

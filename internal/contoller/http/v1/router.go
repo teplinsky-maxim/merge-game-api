@@ -9,4 +9,5 @@ func NewRouter(app *fiber.App, services *service.Services) {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 	NewCollectionRouters(&v1, services.Collection)
+	NewTasksRouter(&v1, services.Task)
 }

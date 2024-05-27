@@ -3,10 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"merge-api/config"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	pgxUUID "github.com/vgarvardt/pgx-google-uuid/v5"
 )
 
 const TestsSchemaName = "tests"
@@ -65,6 +67,11 @@ func newDatabaseConnection(config *config.Config, testConnection bool) (Database
 	pgxConfig.MinConns = 1
 	pgxConfig.MaxConnIdleTime = 5 * time.Minute
 	pgxConfig.HealthCheckPeriod = 1 * time.Minute
+
+	pgxConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		pgxUUID.Register(conn.TypeMap())
+		return nil
+	}
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), pgxConfig)
 	if err != nil {
