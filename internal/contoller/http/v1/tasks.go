@@ -34,11 +34,11 @@ func (r *taskRoutes) createTask() fiber.Handler {
 		}
 
 		ctx := context.Background()
-		taskId, err := r.taskService.CreateTaskNewBoard(ctx, body.Width, body.Height)
+		createdTask, err := r.taskService.CreateTaskNewBoard(ctx, body.Width, body.Height)
 		if err != nil {
 			return err
 		}
 
-		return sendTaskUUID(c, uuid.UUID(taskId))
+		return c.JSON(createdTask)
 	}
 }

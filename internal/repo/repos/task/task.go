@@ -7,53 +7,66 @@ import (
 	task2 "merge-api/internal/entity/task"
 	"merge-api/pkg/board"
 	"merge-api/pkg/database"
-	"merge-api/pkg/task"
 )
 
 type TaskRepo struct {
 	database *database.Database
 }
 
-func (r *TaskRepo) CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task.IDType, error) {
+func (r *TaskRepo) CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task2.Task, error) {
 	tx, err := r.database.DB.Begin(ctx)
 	if err != nil {
-		return [16]byte{}, err
+		return task2.Task{}, nil
 	}
 
 	taskUUID := uuid.New()
 	taskArgs := task2.NewNewBoardTaskArgs(uint(width), uint(height))
+	taskArgsMarshalled, err := taskArgs.MarshalJSON()
+	if err != nil {
+		return task2.Task{}, nil
+	}
 
 	stmt := sq.
 		Insert("tasks").Columns("uuid", "type", "status", "args").
-		Values(taskUUID, task2.NewBoard, task2.Scheduled, taskArgs).
-		Suffix("RETURNING id, uuid").
+		Values(taskUUID, task2.NewBoard, task2.Scheduled, taskArgsMarshalled).
+		Suffix("RETURNING id, time_created").
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := stmt.ToSql()
 	if err != nil {
-		return [16]byte{}, err
+		return task2.Task{}, nil
 	}
 
 	rows, err := tx.Query(ctx, query, args...)
 	if err != nil {
-		return [16]byte{}, err
+		return task2.Task{}, nil
 	}
 
 	var result task2.Task
 	for rows.Next() {
 		err = rows.Err()
 		if err != nil {
-			return [16]byte{}, err
+			return task2.Task{}, nil
 		} else {
-			err = rows.Scan(&result.ID, &result.UUID)
+			err = rows.Scan(
+				&result.ID,
+				&result.TimeCreated,
+			)
+			if err != nil {
+				return task2.Task{}, err
+			}
+			result.UUID = taskUUID
+			result.Type = task2.NewBoard
+			result.Status = task2.Scheduled
+			result.Args = taskArgsMarshalled
 		}
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return [16]byte{}, err
+		return task2.Task{}, nil
 	}
-	return task.IDType(result.UUID), err
+	return result, err
 }
 
 func NewTaskRepo(database *database.Database) *TaskRepo {

@@ -13,7 +13,7 @@ type NewBoardTaskArgs struct {
 }
 
 func (a *NewBoardTaskArgs) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a)
+	return json.Marshal(*a)
 }
 
 func NewNewBoardTaskArgs(width, height uint) NewBoardTaskArgs {

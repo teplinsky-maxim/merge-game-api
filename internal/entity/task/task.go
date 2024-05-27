@@ -1,6 +1,7 @@
 package task
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"time"
 )
@@ -23,8 +24,8 @@ type Task struct {
 	Type   Type
 	Status Status
 
-	Args   map[string]string
-	Result map[string]string
+	Args   json.RawMessage
+	Result json.RawMessage
 
 	TimeCreated          time.Time
 	TimeStartedExecuting time.Time

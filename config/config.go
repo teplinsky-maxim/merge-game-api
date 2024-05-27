@@ -12,6 +12,7 @@ const DefaultConfigPath = "config/config.yaml"
 type (
 	Config struct {
 		Postgresql `yaml:"postgresql"`
+		RabbitMQ   `yaml:"rabbit"`
 	}
 
 	Postgresql struct {
@@ -20,6 +21,13 @@ type (
 		User     string `yaml:"user" env:"DB_USER"`
 		Password string `yaml:"password" env:"DB_PASSWORD"`
 		Database string `yaml:"database" env:"DB_NAME"`
+	}
+
+	RabbitMQ struct {
+		Host     string `yaml:"host" env:"RMQ_HOST"`
+		Port     int    `yaml:"port" env:"RMQ_PORT"`
+		User     string `yaml:"user" env:"RMQ_USER"`
+		Password string `yaml:"password" env:"RMQ_PASSWORD"`
 	}
 )
 

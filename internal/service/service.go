@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"merge-api/internal/entity"
+	task3 "merge-api/internal/entity/task"
 	"merge-api/internal/repo"
 	"merge-api/internal/service/collection"
 	task2 "merge-api/internal/service/task"
 	"merge-api/pkg/board"
+	"merge-api/pkg/rabbitmq"
 	"merge-api/pkg/task"
 )
 
@@ -18,7 +20,7 @@ type Collection interface {
 }
 
 type Task interface {
-	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task.IDType, error)
+	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task3.Task, error)
 	CreateTaskMoveItem(ctx context.Context /**/) (task.IDType, error)
 	CreateTaskMergeItems(ctx context.Context /**/) (task.IDType, error)
 	CreateTaskClickItem(ctx context.Context /**/) (task.IDType, error)
@@ -30,11 +32,12 @@ type Services struct {
 }
 type Dependencies struct {
 	Repositories repo.Repositories
+	RabbitMQ     rabbitmq.RabbitMQ
 }
 
 func NewServices(deps Dependencies) *Services {
 	return &Services{
 		Collection: collection.NewCollectionService(deps.Repositories.Collection),
-		Task:       task2.NewTaskService(deps.Repositories.Task),
+		Task:       task2.NewTaskService(deps.Repositories.Task, &deps.RabbitMQ),
 	}
 }

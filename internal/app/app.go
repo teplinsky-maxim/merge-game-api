@@ -8,6 +8,7 @@ import (
 	"merge-api/internal/repo"
 	"merge-api/internal/service"
 	"merge-api/pkg/database"
+	"merge-api/pkg/rabbitmq"
 )
 
 func Run() {
@@ -26,9 +27,20 @@ func Run() {
 		log.Fatal(err)
 	}
 
+	rmq, err := rabbitmq.NewRabbitMQ(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = rabbitmq.Initialize(&rmq)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	repositories := repo.NewRepositories(&db)
 	serviceDeps := service.Dependencies{
 		Repositories: *repositories,
+		RabbitMQ:     rmq,
 	}
 	services := service.NewServices(serviceDeps)
 

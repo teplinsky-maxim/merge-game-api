@@ -3,11 +3,11 @@ package repo
 import (
 	"context"
 	"merge-api/internal/entity"
+	"merge-api/internal/entity/task"
 	"merge-api/internal/repo/repos/collection"
 	task2 "merge-api/internal/repo/repos/task"
 	"merge-api/pkg/board"
 	"merge-api/pkg/database"
-	"merge-api/pkg/task"
 )
 
 type Collection interface {
@@ -18,7 +18,7 @@ type Collection interface {
 }
 
 type Task interface {
-	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task.IDType, error)
+	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task.Task, error)
 }
 
 type Repositories struct {
