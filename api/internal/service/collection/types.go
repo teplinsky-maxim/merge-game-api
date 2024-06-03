@@ -1,6 +1,6 @@
 package collection
 
-import "merge-api/internal/entity"
+import "merge-api/api/internal/entity"
 
 type GetCollectionsInput struct {
 	Limit  *uint `json:"limit,omitempty"`

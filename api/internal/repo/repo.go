@@ -2,12 +2,12 @@ package repo
 
 import (
 	"context"
-	"merge-api/internal/entity"
-	"merge-api/internal/entity/task"
-	"merge-api/internal/repo/repos/collection"
-	task2 "merge-api/internal/repo/repos/task"
-	"merge-api/pkg/board"
-	"merge-api/pkg/database"
+	"merge-api/api/internal/entity"
+	"merge-api/api/internal/repo/repos/collection"
+	task2 "merge-api/api/internal/repo/repos/task"
+	"merge-api/api/pkg/board"
+	"merge-api/shared/entity/task"
+	"merge-api/shared/pkg/database"
 )
 
 type Collection interface {

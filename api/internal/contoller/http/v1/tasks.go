@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"merge-api/internal/service"
-	"merge-api/internal/service/task"
+	"merge-api/api/internal/service"
+	"merge-api/api/internal/service/task"
 	"net/http"
 )
 

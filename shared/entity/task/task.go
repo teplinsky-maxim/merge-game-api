@@ -6,16 +6,20 @@ import (
 	"time"
 )
 
-type Type string
+type (
+	Type   string
+	IDType uuid.UUID
+	Status uint
+)
 
-const NewBoard Type = "NewBoard"
+const (
+	NewBoard Type = "NewBoard"
 
-type Status uint
-
-const Scheduled Status = 0
-const Running Status = 1
-const Failed Status = 2
-const Done Status = 3
+	Scheduled Status = 0
+	Running   Status = 1
+	Failed    Status = 2
+	Done      Status = 3
+)
 
 // Task is a model
 type Task struct {

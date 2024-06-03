@@ -4,9 +4,9 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	task2 "merge-api/internal/entity/task"
-	"merge-api/pkg/board"
-	"merge-api/pkg/database"
+	"merge-api/api/pkg/board"
+	task2 "merge-api/shared/entity/task"
+	"merge-api/shared/pkg/database"
 )
 
 type TaskRepo struct {

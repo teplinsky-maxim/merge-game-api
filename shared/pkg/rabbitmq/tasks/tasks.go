@@ -3,9 +3,8 @@ package tasks
 import (
 	"encoding/json"
 	"errors"
-	"log"
-	"merge-api/internal/entity/task"
-	"merge-api/pkg/rabbitmq"
+	"merge-api/shared/entity/task"
+	"merge-api/shared/pkg/rabbitmq"
 
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -22,12 +21,6 @@ func SendTask(mq *rabbitmq.RabbitMQ, task task.Task) error {
 		return err
 	}
 	return nil
-}
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
 }
 
 func sendTo(ch *amqp091.Channel, exchange, key string, message any) error {

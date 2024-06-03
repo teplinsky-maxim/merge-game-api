@@ -3,7 +3,7 @@ package rabbitmq
 import (
 	"fmt"
 	"github.com/rabbitmq/amqp091-go"
-	"merge-api/config"
+	"merge-api/shared/config"
 )
 
 const (

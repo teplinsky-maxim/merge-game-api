@@ -3,12 +3,12 @@ package app
 import (
 	"github.com/gofiber/fiber/v2"
 	"log"
-	"merge-api/config"
-	v1 "merge-api/internal/contoller/http/v1"
-	"merge-api/internal/repo"
-	"merge-api/internal/service"
-	"merge-api/pkg/database"
-	"merge-api/pkg/rabbitmq"
+	v1 "merge-api/api/internal/contoller/http/v1"
+	"merge-api/api/internal/repo"
+	"merge-api/api/internal/service"
+	"merge-api/shared/config"
+	"merge-api/shared/pkg/database"
+	"merge-api/shared/pkg/rabbitmq"
 )
 
 func Run() {

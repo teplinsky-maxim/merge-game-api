@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5"
-	"merge-api/config"
+	"merge-api/shared/config"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"

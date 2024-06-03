@@ -1,6 +1,6 @@
 package task
 
-import "merge-api/pkg/board"
+import "merge-api/api/pkg/board"
 
 type CreateNewBoardTaskInput struct {
 	Width  board.SizeType

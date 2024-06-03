@@ -7,7 +7,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"merge-api/config"
+	"merge-api/shared/config"
 	"os"
 	"path/filepath"
 	"strings"
