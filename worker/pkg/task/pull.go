@@ -7,7 +7,7 @@ import (
 	"merge-api/shared/pkg/rabbitmq"
 )
 
-func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *TaskExecutorsManager) error {
+func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager) error {
 	channel, err := mq.Connection.Channel()
 	if err != nil {
 		return err

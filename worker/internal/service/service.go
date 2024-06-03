@@ -1,10 +1,11 @@
 package service
 
 import (
-	"context"
-	"merge-api/shared/entity/task"
+	"merge-api/worker/internal/repo"
+	"merge-api/worker/pkg/redis"
 )
 
-type Task interface {
-	Execute(ctx context.Context, task *task.Task) error
+type Dependencies struct {
+	Repositories repo.Repositories
+	Redis        redis.Redis
 }
