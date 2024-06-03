@@ -3,8 +3,8 @@ package task
 import (
 	"context"
 	"merge-api/api/internal/repo"
-	"merge-api/api/pkg/board"
 	taskEntity "merge-api/shared/entity/task"
+	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/rabbitmq"
 	"merge-api/shared/pkg/rabbitmq/tasks"
 )

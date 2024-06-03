@@ -5,8 +5,8 @@ import (
 	"merge-api/api/internal/entity"
 	"merge-api/api/internal/repo/repos/collection"
 	task2 "merge-api/api/internal/repo/repos/task"
-	"merge-api/api/pkg/board"
 	"merge-api/shared/entity/task"
+	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/database"
 )
 

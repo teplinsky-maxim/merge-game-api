@@ -22,8 +22,8 @@ func NewTaskExecutorsManager(executors []Executor) *ExecutorsManager {
 	return &ExecutorsManager{executors: executors}
 }
 
-func (manager *ExecutorsManager) FindExecutor(t *task.Task) (Executor, error) {
-	for _, executor := range manager.executors {
+func (m *ExecutorsManager) FindExecutor(t *task.Task) (Executor, error) {
+	for _, executor := range m.executors {
 		canExecute, err := executor.CanExecuteThisTask(t)
 		if err != nil {
 			return nil, err
@@ -35,8 +35,8 @@ func (manager *ExecutorsManager) FindExecutor(t *task.Task) (Executor, error) {
 	return nil, UnknownTask
 }
 
-func (manager *ExecutorsManager) ExecuteTask(t *task.Task) (any, error) {
-	executor, err := manager.FindExecutor(t)
+func (m *ExecutorsManager) ExecuteTask(t *task.Task) (any, error) {
+	executor, err := m.FindExecutor(t)
 	if err != nil {
 		return nil, err
 	}

@@ -6,8 +6,8 @@ import (
 	"merge-api/api/internal/repo"
 	"merge-api/api/internal/service/collection"
 	task2 "merge-api/api/internal/service/task"
-	"merge-api/api/pkg/board"
 	taskEntity "merge-api/shared/entity/task"
+	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/rabbitmq"
 )
 
