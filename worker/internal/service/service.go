@@ -11,13 +11,13 @@ type CollectionItem interface{}
 
 // Board is high-level interface
 type Board[T any] interface {
-	GetBoard(id uint) (board.Board[T], error)            // Get board, you can get it from cache or database or whatever you want
-	CreateBoard(w, h uint) (board.Board[T], uint, error) // Create board
-	UpdateBoard(id uint, board *board.Board[T]) error    // Update board
-	DeleteBoard(id uint) error                           // Delete board
+	GetBoard(id uint) (board.Board[T], error)            // Get board.go, you can get it from cache or database or whatever you want
+	CreateBoard(w, h uint) (board.Board[T], uint, error) // Create board.go
+	UpdateBoard(id uint, board *board.Board[T]) error    // Update board.go
+	DeleteBoard(id uint) error                           // Delete board.go
 }
 
-// CollectionBoard is board for collections
+// CollectionBoard is board.go for collections
 // you use it as high-level interface
 type CollectionBoard interface {
 	Board[CollectionItem]

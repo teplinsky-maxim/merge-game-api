@@ -38,13 +38,14 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	repositories := repo.NewRepositories(&db)
+	repositories := repo.NewRepositories(&db, &redisClient)
 	dependencies := service.Dependencies{
 		Repositories: *repositories,
 		Redis:        redisClient,
 	}
+	services := service.NewServices(dependencies)
 
-	newNewBoardTaskExecutor := executors.NewNewBoardTaskExecutor(dependencies)
+	newNewBoardTaskExecutor := executors.NewNewBoardTaskExecutor(services.Board)
 	taskExecutorsManager := task.NewTaskExecutorsManager([]task.Executor{newNewBoardTaskExecutor})
 
 	err = task.StartPullTasks(&rmq, taskExecutorsManager)

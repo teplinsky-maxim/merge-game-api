@@ -5,7 +5,11 @@ import (
 	"merge-api/shared/entity/task"
 	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/database"
+	board2 "merge-api/worker/internal/repo/repos/collection/board"
+	"merge-api/worker/internal/repo/repos/collection/redis_board"
+	task2 "merge-api/worker/internal/repo/repos/task"
 	"merge-api/worker/internal/service"
+	"merge-api/worker/pkg/redis"
 )
 
 type Task interface {
@@ -14,13 +18,13 @@ type Task interface {
 
 // Board is high-level interface
 type Board[T any] interface {
-	GetBoard(id uint) (board.Board[T], error)            // Get board, you can get it from cache or database or whatever you want
-	CreateBoard(w, h uint) (board.Board[T], uint, error) // Create board
-	UpdateBoard(id uint, board *board.Board[T]) error    // Update board
-	DeleteBoard(id uint) error                           // Delete board
+	GetBoard(ctx context.Context, id uint) (board.Board[T], error)
+	CreateBoard(ctx context.Context, w, h uint) (board.Board[T], uint, error)
+	UpdateBoard(ctx context.Context, id uint, board *board.Board[T]) error
+	DeleteBoard(ctx context.Context, id uint) error
 }
 
-// CollectionBoard is board for collections
+// CollectionBoard is board.go for collections
 // you use it as high-level interface
 type CollectionBoard interface {
 	Board[service.CollectionItem]
@@ -31,7 +35,7 @@ type RedisBoard[T any] interface {
 	Board[T]
 }
 
-// RedisCollectionBoard is to store board with collection in redis
+// RedisCollectionBoard is to store board.go with collection in redis
 type RedisCollectionBoard interface {
 	RedisBoard[service.CollectionItem]
 }
@@ -42,6 +46,10 @@ type Repositories struct {
 	RedisCollectionBoard
 }
 
-func NewRepositories(database *database.Database) *Repositories {
-	return &Repositories{}
+func NewRepositories(database *database.Database, redis *redis.Redis) *Repositories {
+	return &Repositories{
+		Task:                 task2.NewTaskRepo(database),
+		CollectionBoard:      board2.NewBoardRepo(database),
+		RedisCollectionBoard: redis_board.NewRedisBoardRepo(redis),
+	}
 }

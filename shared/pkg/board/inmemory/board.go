@@ -2,7 +2,7 @@ package inmemory
 
 import "errors"
 
-var BoardIndexError = errors.New("index out of board")
+var BoardIndexError = errors.New("index out of board.go")
 
 type Board[T any] struct {
 	width  uint

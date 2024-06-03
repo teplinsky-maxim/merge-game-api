@@ -2,14 +2,11 @@ package executors
 
 import (
 	"merge-api/shared/entity/task"
-	"merge-api/worker/internal/repo"
 	"merge-api/worker/internal/service"
-	"merge-api/worker/pkg/redis"
 )
 
 type NewBoardTaskExecutor struct {
-	repo  *repo.Repositories
-	redis *redis.Redis
+	service *service.CollectionBoard
 }
 
 func (n *NewBoardTaskExecutor) CanExecuteThisTask(t *task.Task) (bool, error) {
@@ -21,9 +18,8 @@ func (n *NewBoardTaskExecutor) Execute(t *task.Task) (any, error) {
 	return nil, nil
 }
 
-func NewNewBoardTaskExecutor(dependencies service.Dependencies) *NewBoardTaskExecutor {
+func NewNewBoardTaskExecutor(boardService service.CollectionBoard) *NewBoardTaskExecutor {
 	return &NewBoardTaskExecutor{
-		repo:  &dependencies.Repositories,
-		redis: &dependencies.Redis,
+		service: &boardService,
 	}
 }
