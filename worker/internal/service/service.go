@@ -23,8 +23,15 @@ type CollectionBoard interface {
 	Board[CollectionItem]
 }
 
+//type Task interface {
+//	SetTaskStarted(taskId task.IDType) error
+//	SetTaskDone(taskId task.IDType, result any) error
+//	SetTaskFailed(taskId task.IDType) error
+//}
+
 type Services struct {
 	Board CollectionBoard
+	//Task  Task
 }
 
 type Dependencies struct {

@@ -1,13 +1,15 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"merge-api/shared/entity/task"
 	"merge-api/shared/pkg/rabbitmq"
+	taskRepo "merge-api/worker/internal/repo/repos/task"
 )
 
-func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager) error {
+func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager, taskRepo taskRepo.Repo) error {
 	channel, err := mq.Connection.Channel()
 	if err != nil {
 		return err
@@ -34,9 +36,15 @@ func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager) error {
 			continue
 		}
 
-		_, err = manager.ExecuteTask(&unmarshalledTask)
+		executionResult, err := manager.ExecuteTask(&unmarshalledTask)
 		if err != nil {
 			log.Printf("Error executing task: %s", err)
+		}
+
+		ctx := context.Background()
+		err = taskRepo.UpdateTask(ctx, task.Done, executionResult)
+		if err != nil {
+			return err
 		}
 
 		err = d.Ack(false)

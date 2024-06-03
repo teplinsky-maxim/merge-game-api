@@ -32,7 +32,7 @@ type CollectionBoard interface {
 
 // RedisBoard is an interface only for redis
 type RedisBoard[T any] interface {
-	Board[T]
+	CreateBoard(ctx context.Context, board board.Board[T], boardId uint) error
 }
 
 // RedisCollectionBoard is to store board.go with collection in redis

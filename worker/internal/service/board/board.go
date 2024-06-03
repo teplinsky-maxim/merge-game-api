@@ -1,6 +1,7 @@
 package board
 
 import (
+	"context"
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
 	"merge-api/worker/internal/service"
@@ -17,8 +18,16 @@ func (r *CollectionBoardService) GetBoard(id uint) (board.Board[service.Collecti
 }
 
 func (r *CollectionBoardService) CreateBoard(w, h uint) (board.Board[service.CollectionItem], uint, error) {
-	//TODO implement me
-	panic("implement me")
+	ctx := context.Background()
+	createdBoard, boardId, err := (*r.repo).CreateBoard(ctx, w, h)
+	if err != nil {
+		return nil, 0, err
+	}
+	err = (*r.redis).CreateBoard(ctx, createdBoard, boardId)
+	if err != nil {
+		return nil, 0, err
+	}
+	return createdBoard, boardId, nil
 }
 
 func (r *CollectionBoardService) UpdateBoard(id uint, board *board.Board[service.CollectionItem]) error {

@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 )
 
-type Args interface {
-	MarshalJSON() ([]byte, error)
-}
 type NewBoardTaskArgs struct {
 	Width  uint `json:"width"`
 	Height uint `json:"height"`
+}
+
+type NewBoardTaskResult struct {
+	BoardID uint `json:"board_id"`
 }
 
 func (a *NewBoardTaskArgs) MarshalJSON() ([]byte, error) {

@@ -11,19 +11,7 @@ type Repo struct {
 	redis *redis.Redis
 }
 
-func (r *Repo) GetBoard(ctx context.Context, id uint) (board.Board[service.CollectionItem], error) {
-	panic("implement me")
-}
-
-func (r *Repo) CreateBoard(ctx context.Context, w, h uint) (board.Board[service.CollectionItem], uint, error) {
-	panic("implement me")
-}
-
-func (r *Repo) UpdateBoard(ctx context.Context, id uint, board *board.Board[service.CollectionItem]) error {
-	panic("implement me")
-}
-
-func (r *Repo) DeleteBoard(ctx context.Context, id uint) error {
+func (r *Repo) CreateBoard(ctx context.Context, board board.Board[service.CollectionItem], boardId uint) error {
 	panic("implement me")
 }
 
