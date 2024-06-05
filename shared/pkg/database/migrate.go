@@ -28,7 +28,7 @@ func RunMigrations(config *config.Config, schema string) error {
 		panic(err)
 	}
 
-	path, err := discoverPathToMigrationsFolder("migrations")
+	path, err := discoverPathToMigrationsFolder("shared/migrations")
 	if err != nil {
 		panic(err)
 	}

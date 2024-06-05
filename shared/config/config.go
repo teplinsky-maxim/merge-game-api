@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-const DefaultConfigPath = "config/config.yaml"
+const DefaultConfigPath = "shared/config/config.yaml"
 
 type (
 	Config struct {

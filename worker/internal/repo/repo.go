@@ -8,7 +8,7 @@ import (
 	board2 "merge-api/worker/internal/repo/repos/collection/board"
 	"merge-api/worker/internal/repo/repos/collection/redis_board"
 	task2 "merge-api/worker/internal/repo/repos/task"
-	"merge-api/worker/internal/service"
+	"merge-api/worker/pkg"
 	"merge-api/worker/pkg/redis"
 )
 
@@ -27,7 +27,7 @@ type Board[T any] interface {
 // CollectionBoard is board.go for collections
 // you use it as high-level interface
 type CollectionBoard interface {
-	Board[service.CollectionItem]
+	Board[pkg.CollectionItem]
 }
 
 // RedisBoard is an interface only for redis
@@ -37,7 +37,7 @@ type RedisBoard[T any] interface {
 
 // RedisCollectionBoard is to store board.go with collection in redis
 type RedisCollectionBoard interface {
-	RedisBoard[service.CollectionItem]
+	RedisBoard[pkg.CollectionItem]
 }
 
 type Repositories struct {

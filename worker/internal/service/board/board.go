@@ -4,7 +4,7 @@ import (
 	"context"
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
-	"merge-api/worker/internal/service"
+	"merge-api/worker/pkg"
 )
 
 type CollectionBoardService struct {
@@ -12,12 +12,12 @@ type CollectionBoardService struct {
 	redis *repo.RedisCollectionBoard
 }
 
-func (r *CollectionBoardService) GetBoard(id uint) (board.Board[service.CollectionItem], error) {
+func (r *CollectionBoardService) GetBoard(id uint) (board.Board[pkg.CollectionItem], error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r *CollectionBoardService) CreateBoard(w, h uint) (board.Board[service.CollectionItem], uint, error) {
+func (r *CollectionBoardService) CreateBoard(w, h uint) (board.Board[pkg.CollectionItem], uint, error) {
 	ctx := context.Background()
 	createdBoard, boardId, err := (*r.repo).CreateBoard(ctx, w, h)
 	if err != nil {
@@ -30,7 +30,7 @@ func (r *CollectionBoardService) CreateBoard(w, h uint) (board.Board[service.Col
 	return createdBoard, boardId, nil
 }
 
-func (r *CollectionBoardService) UpdateBoard(id uint, board *board.Board[service.CollectionItem]) error {
+func (r *CollectionBoardService) UpdateBoard(id uint, board *board.Board[pkg.CollectionItem]) error {
 	//TODO implement me
 	panic("implement me")
 }

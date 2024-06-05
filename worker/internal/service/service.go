@@ -6,10 +6,9 @@ import (
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
 	boardService "merge-api/worker/internal/service/board"
+	"merge-api/worker/pkg"
 	"merge-api/worker/pkg/redis"
 )
-
-type CollectionItem interface{}
 
 // Board is high-level interface
 type Board[T any] interface {
@@ -22,7 +21,7 @@ type Board[T any] interface {
 // CollectionBoard is board.go for collections
 // you use it as high-level interface
 type CollectionBoard interface {
-	Board[CollectionItem]
+	Board[pkg.CollectionItem]
 }
 
 type Task interface {
