@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"merge-api/shared/entity/task"
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
 	boardService "merge-api/worker/internal/service/board"
@@ -23,15 +25,15 @@ type CollectionBoard interface {
 	Board[CollectionItem]
 }
 
-//type Task interface {
-//	SetTaskStarted(taskId task.IDType) error
-//	SetTaskDone(taskId task.IDType, result any) error
-//	SetTaskFailed(taskId task.IDType) error
-//}
+type Task interface {
+	SetTaskStarted(ctx context.Context, taskId task.IDType) error
+	SetTaskDone(ctx context.Context, taskId task.IDType, result any) error
+	SetTaskFailed(ctx context.Context, taskId task.IDType) error
+}
 
 type Services struct {
 	Board CollectionBoard
-	//Task  Task
+	Task  Task
 }
 
 type Dependencies struct {

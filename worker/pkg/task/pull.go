@@ -6,10 +6,10 @@ import (
 	"log"
 	"merge-api/shared/entity/task"
 	"merge-api/shared/pkg/rabbitmq"
-	taskRepo "merge-api/worker/internal/repo/repos/task"
+	"merge-api/worker/internal/service"
 )
 
-func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager, taskRepo taskRepo.Repo) error {
+func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager, taskRepo service.Task) error {
 	channel, err := mq.Connection.Channel()
 	if err != nil {
 		return err
@@ -35,16 +35,21 @@ func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager, taskRepo t
 			log.Printf("Error unmarshalling task: %s", err)
 			continue
 		}
+		ctx := context.Background()
 
 		executionResult, err := manager.ExecuteTask(&unmarshalledTask)
-		if err != nil {
-			log.Printf("Error executing task: %s", err)
-		}
 
-		ctx := context.Background()
-		err = taskRepo.UpdateTask(ctx, task.Done, executionResult)
+		err = taskRepo.SetTaskStarted(ctx, task.IDType(unmarshalledTask.UUID))
 		if err != nil {
-			return err
+			err = taskRepo.SetTaskFailed(ctx, task.IDType(unmarshalledTask.UUID))
+			if err != nil {
+				return err
+			}
+		} else {
+			err = taskRepo.SetTaskDone(ctx, task.IDType(unmarshalledTask.UUID), executionResult)
+			if err != nil {
+				return err
+			}
 		}
 
 		err = d.Ack(false)

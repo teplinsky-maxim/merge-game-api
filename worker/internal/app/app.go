@@ -48,7 +48,7 @@ func Run() {
 	newNewBoardTaskExecutor := executors.NewNewBoardTaskExecutor(services.Board)
 	taskExecutorsManager := task.NewTaskExecutorsManager([]task.Executor{newNewBoardTaskExecutor})
 
-	err = task.StartPullTasks(&rmq, taskExecutorsManager)
+	err = task.StartPullTasks(&rmq, taskExecutorsManager, services.Task)
 	if err != nil {
 		log.Fatal(err)
 	}

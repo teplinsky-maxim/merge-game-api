@@ -13,7 +13,7 @@ import (
 )
 
 type Task interface {
-	UpdateTask(ctx context.Context, status task.Status, result any) error
+	UpdateTask(ctx context.Context, taskId task.IDType, status task.Status, result any) error
 }
 
 // Board is high-level interface

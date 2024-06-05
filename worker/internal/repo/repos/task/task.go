@@ -10,7 +10,7 @@ type Repo struct {
 	database *database.Database
 }
 
-func (r *Repo) UpdateTask(ctx context.Context, status task.Status, result any) error {
+func (r *Repo) UpdateTask(ctx context.Context, taskId task.IDType, status task.Status, result any) error {
 	panic("implement me")
 }
 
