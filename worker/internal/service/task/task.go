@@ -33,3 +33,9 @@ func (r *TaskService) SetTaskFailed(ctx context.Context, taskId task.IDType) err
 	}
 	return nil
 }
+
+func NewTaskService(repo repo.Task) *TaskService {
+	return &TaskService{
+		repo: &repo,
+	}
+}

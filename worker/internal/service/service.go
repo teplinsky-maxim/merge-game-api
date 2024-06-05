@@ -6,6 +6,7 @@ import (
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
 	boardService "merge-api/worker/internal/service/board"
+	taskService "merge-api/worker/internal/service/task"
 	"merge-api/worker/pkg"
 	"merge-api/worker/pkg/redis"
 )
@@ -45,6 +46,9 @@ func NewServices(deps Dependencies) *Services {
 		Board: boardService.NewCollectionBoardService(
 			deps.Repositories.CollectionBoard,
 			deps.Repositories.RedisCollectionBoard,
+		),
+		Task: taskService.NewTaskService(
+			deps.Repositories.Task,
 		),
 	}
 }
