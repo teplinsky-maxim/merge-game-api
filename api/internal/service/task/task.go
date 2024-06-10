@@ -4,7 +4,6 @@ import (
 	"context"
 	"merge-api/api/internal/repo"
 	taskEntity "merge-api/shared/entity/task"
-	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/rabbitmq"
 	"merge-api/shared/pkg/rabbitmq/tasks"
 )
@@ -14,7 +13,7 @@ type TaskService struct {
 	rmq  *rabbitmq.RabbitMQ
 }
 
-func (r *TaskService) CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (taskEntity.Task, error) {
+func (r *TaskService) CreateTaskNewBoard(ctx context.Context, width, height uint) (taskEntity.Task, error) {
 	createdTask, err := r.repo.CreateTaskNewBoard(ctx, width, height)
 	if err != nil {
 		return taskEntity.Task{}, err

@@ -8,7 +8,7 @@ import (
 )
 
 type Redis struct {
-	client *redis.Client
+	Client *redis.Client
 }
 
 func NewRedis(config *config.Config) (Redis, error) {
@@ -23,6 +23,6 @@ func NewRedis(config *config.Config) (Redis, error) {
 		return Redis{}, err
 	}
 	return Redis{
-		client: rdb,
+		Client: rdb,
 	}, nil
 }

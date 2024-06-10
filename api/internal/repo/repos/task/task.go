@@ -5,7 +5,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	task2 "merge-api/shared/entity/task"
-	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/database"
 )
 
@@ -13,14 +12,14 @@ type TaskRepo struct {
 	database *database.Database
 }
 
-func (r *TaskRepo) CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task2.Task, error) {
+func (r *TaskRepo) CreateTaskNewBoard(ctx context.Context, width, height uint) (task2.Task, error) {
 	tx, err := r.database.DB.Begin(ctx)
 	if err != nil {
 		return task2.Task{}, nil
 	}
 
 	taskUUID := uuid.New()
-	taskArgs := task2.NewNewBoardTaskArgs(uint(width), uint(height))
+	taskArgs := task2.NewNewBoardTaskArgs(width, height)
 	taskArgsMarshalled, err := taskArgs.MarshalJSON()
 	if err != nil {
 		return task2.Task{}, nil

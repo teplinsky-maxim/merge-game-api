@@ -6,7 +6,6 @@ import (
 	"merge-api/api/internal/repo/repos/collection"
 	task2 "merge-api/api/internal/repo/repos/task"
 	"merge-api/shared/entity/task"
-	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/database"
 )
 
@@ -18,7 +17,7 @@ type Collection interface {
 }
 
 type Task interface {
-	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (task.Task, error)
+	CreateTaskNewBoard(ctx context.Context, width, height uint) (task.Task, error)
 }
 
 type Repositories struct {

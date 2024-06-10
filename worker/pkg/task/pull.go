@@ -37,9 +37,12 @@ func StartPullTasks(mq *rabbitmq.RabbitMQ, manager *ExecutorsManager, taskRepo s
 		}
 		ctx := context.Background()
 
+		err = taskRepo.SetTaskStarted(ctx, task.IDType(unmarshalledTask.UUID))
+		if err != nil {
+			return err
+		}
 		executionResult, err := manager.ExecuteTask(&unmarshalledTask)
 
-		err = taskRepo.SetTaskStarted(ctx, task.IDType(unmarshalledTask.UUID))
 		if err != nil {
 			err = taskRepo.SetTaskFailed(ctx, task.IDType(unmarshalledTask.UUID))
 			if err != nil {

@@ -7,7 +7,6 @@ import (
 	"merge-api/api/internal/service/collection"
 	task2 "merge-api/api/internal/service/task"
 	taskEntity "merge-api/shared/entity/task"
-	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/rabbitmq"
 )
 
@@ -19,7 +18,7 @@ type Collection interface {
 }
 
 type Task interface {
-	CreateTaskNewBoard(ctx context.Context, width, height board.SizeType) (taskEntity.Task, error)
+	CreateTaskNewBoard(ctx context.Context, width, height uint) (taskEntity.Task, error)
 	CreateTaskMoveItem(ctx context.Context /**/) (taskEntity.IDType, error)
 	CreateTaskMergeItems(ctx context.Context /**/) (taskEntity.IDType, error)
 	CreateTaskClickItem(ctx context.Context /**/) (taskEntity.IDType, error)

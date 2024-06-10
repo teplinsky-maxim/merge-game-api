@@ -1,10 +1,8 @@
 package board
 
-type SizeType uint
-
 type Board[T any] interface {
-	Get(width, height SizeType) (T, error)
-	Set(width, height SizeType, t T) error
-	Width() SizeType
-	Height() SizeType
+	Get(width, height uint) (T, error)
+	Set(width, height uint, t T) error
+	Width() uint
+	Height() uint
 }
