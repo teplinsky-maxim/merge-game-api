@@ -2,8 +2,8 @@ package collection
 
 import (
 	"context"
-	"merge-api/internal/entity"
-	"merge-api/internal/repo"
+	"merge-api/api/internal/entity"
+	"merge-api/api/internal/repo"
 )
 
 type CollectionService struct {

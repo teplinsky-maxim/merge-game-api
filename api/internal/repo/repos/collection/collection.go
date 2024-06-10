@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	sq "github.com/Masterminds/squirrel"
-	"merge-api/internal/entity"
-	"merge-api/pkg/database"
+	"merge-api/api/internal/entity"
+	"merge-api/shared/pkg/database"
 )
 
 var (

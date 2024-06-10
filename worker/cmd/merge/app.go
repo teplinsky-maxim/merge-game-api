@@ -1,6 +1,6 @@
 package main
 
-import "merge-api/api/internal/app"
+import "merge-api/worker/internal/app"
 
 func main() {
 	app.Run()

@@ -4,9 +4,9 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
-	"merge-api/config"
-	"merge-api/internal/entity"
-	"merge-api/pkg/database"
+	"merge-api/api/internal/entity"
+	"merge-api/shared/config"
+	"merge-api/shared/pkg/database"
 	"reflect"
 	"testing"
 )

@@ -3,8 +3,8 @@ package v1
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	"merge-api/internal/service"
-	"merge-api/internal/service/collection"
+	"merge-api/api/internal/service"
+	"merge-api/api/internal/service/collection"
 	"net/http"
 	"strconv"
 )

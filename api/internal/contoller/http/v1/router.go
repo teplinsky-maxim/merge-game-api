@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"merge-api/internal/service"
+	"merge-api/api/internal/service"
 )
 
 func NewRouter(app *fiber.App, services *service.Services) {
