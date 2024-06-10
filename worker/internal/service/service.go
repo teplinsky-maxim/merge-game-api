@@ -14,6 +14,7 @@ import (
 // Board is high-level interface
 type Board[T any] interface {
 	GetBoard(id uint) (board.Board[T], error)            // Get board.go, you can get it from cache or database or whatever you want
+	GetBoardByCoordinates(id uint, w, h uint) (T, error) // Get board.go, you can get it from cache or database or whatever you want
 	CreateBoard(w, h uint) (board.Board[T], uint, error) // Create board.go
 	UpdateBoard(id uint, board *board.Board[T]) error    // Update board.go
 	DeleteBoard(id uint) error                           // Delete board.go

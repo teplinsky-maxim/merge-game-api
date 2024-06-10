@@ -14,6 +14,7 @@ type (
 
 const (
 	NewBoard Type = "NewBoard"
+	MoveItem Type = "MoveItem"
 
 	Scheduled Status = 0
 	Running   Status = 1

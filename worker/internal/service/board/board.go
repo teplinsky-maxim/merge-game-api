@@ -17,6 +17,16 @@ func (r *CollectionBoardService) GetBoard(id uint) (board.Board[pkg.CollectionIt
 	panic("implement me")
 }
 
+func (r *CollectionBoardService) GetBoardByCoordinates(id uint, w, h uint) (pkg.CollectionItem, error) {
+	ctx := context.Background()
+	atCoords, err := (*r.redis).GetBoardByCoordinates(ctx, id, w, h)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: if board is not found in redis search in database
+	return atCoords, nil
+}
+
 func (r *CollectionBoardService) CreateBoard(w, h uint) (board.Board[pkg.CollectionItem], uint, error) {
 	ctx := context.Background()
 	createdBoard, boardId, err := (*r.repo).CreateBoard(ctx, w, h)

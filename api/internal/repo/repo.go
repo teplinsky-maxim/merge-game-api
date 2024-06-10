@@ -18,6 +18,7 @@ type Collection interface {
 
 type Task interface {
 	CreateTaskNewBoard(ctx context.Context, width, height uint) (task.Task, error)
+	CreateTaskMoveItem(ctx context.Context, boardId, w1, h1, w2, h2 uint) (task.Task, error)
 }
 
 type Repositories struct {

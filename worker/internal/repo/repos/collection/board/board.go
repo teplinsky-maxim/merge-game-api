@@ -17,6 +17,10 @@ func (r *Repo) GetBoard(ctx context.Context, id uint) (board.Board[pkg.Collectio
 	panic("implement me")
 }
 
+func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.CollectionItem, error) {
+	panic("implement me")
+}
+
 func (r *Repo) CreateBoard(ctx context.Context, w, h uint) (board.Board[pkg.CollectionItem], uint, error) {
 	tx, err := r.database.DB.Begin(ctx)
 	if err != nil {

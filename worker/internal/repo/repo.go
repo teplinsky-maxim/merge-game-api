@@ -19,6 +19,7 @@ type Task interface {
 // Board is high-level interface
 type Board[T any] interface {
 	GetBoard(ctx context.Context, id uint) (board.Board[T], error)
+	GetBoardByCoordinates(ctx context.Context, id, w, h uint) (T, error)
 	CreateBoard(ctx context.Context, w, h uint) (board.Board[T], uint, error)
 	UpdateBoard(ctx context.Context, id uint, board *board.Board[T]) error
 	DeleteBoard(ctx context.Context, id uint) error
@@ -33,6 +34,7 @@ type CollectionBoard interface {
 // RedisBoard is an interface only for redis
 type RedisBoard[T any] interface {
 	CreateBoard(ctx context.Context, board board.Board[T], boardId uint) error
+	GetBoardByCoordinates(ctx context.Context, id, w, h uint) (T, error)
 }
 
 // RedisCollectionBoard is to store board.go with collection in redis
