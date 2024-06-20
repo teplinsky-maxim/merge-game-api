@@ -29,7 +29,7 @@ func (r *Repo) GetBoard(ctx context.Context, id uint) (board.Board[pkg.Collectio
 func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.CollectionItem, error) {
 	tx, err := r.database.DB.Acquire(ctx)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	defer tx.Release()
@@ -46,19 +46,19 @@ func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.Co
 		PlaceholderFormat(sq.Dollar)
 	query, args, err := stmt.ToSql()
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	rows, err := tx.Query(ctx, query, args...)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	var collectionId, collectionItemId, maxW, maxH uint
 	for rows.Next() {
 		err = rows.Err()
 		if err != nil {
-			return nil, nil
+			return nil, err
 		} else {
 			// TODO: in case of oob make sure it is also checked in redis
 			err = rows.Scan(&collectionId, &collectionItemId, &maxW, &maxH)

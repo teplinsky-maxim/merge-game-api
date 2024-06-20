@@ -31,6 +31,15 @@ func (r *TaskRepo) CreateTaskMoveItem(ctx context.Context, boardId, w1, h1, w2, 
 	return addTask(ctx, r, task2.MoveItem, marshalledArgs)
 }
 
+func (r *TaskRepo) CreateTaskMergeItems(ctx context.Context, boardId, w1, h1, w2, h2 uint) (task2.Task, error) {
+	args := task2.NewMergeItemsTaskArgs(boardId, w1, h1, w2, h2)
+	marshalledArgs, err := args.MarshalJSON()
+	if err != nil {
+		return task2.Task{}, err
+	}
+	return addTask(ctx, r, task2.MergeItems, marshalledArgs)
+}
+
 func addTask(ctx context.Context, r *TaskRepo, taskType task2.Type, marshalledArgs json.RawMessage) (task2.Task, error) {
 	tx, err := r.database.DB.Begin(ctx)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/internal/repo"
 	boardService "merge-api/worker/internal/service/board"
+	"merge-api/worker/internal/service/collection"
 	taskService "merge-api/worker/internal/service/task"
 	"merge-api/worker/pkg"
 	"merge-api/worker/pkg/redis"
@@ -34,9 +35,15 @@ type Task interface {
 	SetTaskFailed(ctx context.Context, taskId task.IDType) error
 }
 
+type Collection interface {
+	GetNextCollectionItem(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
+	IsItemMergeable(ctx context.Context, item pkg.CollectionItem) (bool, error)
+}
+
 type Services struct {
-	Board CollectionBoard
-	Task  Task
+	Board      CollectionBoard
+	Task       Task
+	Collection Collection
 }
 
 type Dependencies struct {
@@ -52,6 +59,9 @@ func NewServices(deps Dependencies) *Services {
 		),
 		Task: taskService.NewTaskService(
 			deps.Repositories.Task,
+		),
+		Collection: collection.NewCollectionService(
+			deps.Repositories.Collection,
 		),
 	}
 }

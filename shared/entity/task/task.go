@@ -13,8 +13,9 @@ type (
 )
 
 const (
-	NewBoard Type = "NewBoard"
-	MoveItem Type = "MoveItem"
+	NewBoard   Type = "NewBoard"
+	MoveItem   Type = "MoveItem"
+	MergeItems Type = "MergeItems"
 
 	Scheduled Status = 0
 	Running   Status = 1

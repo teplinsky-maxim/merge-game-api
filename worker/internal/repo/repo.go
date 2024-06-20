@@ -5,6 +5,7 @@ import (
 	"merge-api/shared/entity/task"
 	"merge-api/shared/pkg/board"
 	"merge-api/shared/pkg/database"
+	"merge-api/worker/internal/repo/repos/collection"
 	board2 "merge-api/worker/internal/repo/repos/collection/board"
 	"merge-api/worker/internal/repo/repos/collection/redis_board"
 	task2 "merge-api/worker/internal/repo/repos/task"
@@ -47,10 +48,16 @@ type RedisCollectionBoard interface {
 	RedisBoard[pkg.CollectionItem]
 }
 
+type Collection interface {
+	GetNextCollectionItem(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
+	IsItemMergeable(ctx context.Context, item pkg.CollectionItem) (bool, error)
+}
+
 type Repositories struct {
 	Task
 	CollectionBoard
 	RedisCollectionBoard
+	Collection
 }
 
 func NewRepositories(database *database.Database, redis *redis.Redis) *Repositories {
@@ -58,5 +65,6 @@ func NewRepositories(database *database.Database, redis *redis.Redis) *Repositor
 		Task:                 task2.NewTaskRepo(database),
 		CollectionBoard:      board2.NewBoardRepo(database),
 		RedisCollectionBoard: redis_board.NewRedisBoardRepo(redis),
+		Collection:           collection.NewCollectionRepo(database),
 	}
 }
