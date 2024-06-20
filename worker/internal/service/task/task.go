@@ -27,7 +27,7 @@ func (r *TaskService) SetTaskDone(ctx context.Context, taskId task.IDType, resul
 }
 
 func (r *TaskService) SetTaskFailed(ctx context.Context, taskId task.IDType) error {
-	err := (*r.repo).UpdateTask(ctx, taskId, task.Done, nil)
+	err := (*r.repo).UpdateTask(ctx, taskId, task.Failed, nil)
 	if err != nil {
 		return err
 	}

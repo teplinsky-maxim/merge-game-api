@@ -16,8 +16,10 @@ type Board[T any] interface {
 	GetBoard(id uint) (board.Board[T], error)            // Get board.go, you can get it from cache or database or whatever you want
 	GetBoardByCoordinates(id uint, w, h uint) (T, error) // Get board.go, you can get it from cache or database or whatever you want
 	CreateBoard(w, h uint) (board.Board[T], uint, error) // Create board.go
-	UpdateBoard(id uint, board *board.Board[T]) error    // Update board.go
 	DeleteBoard(id uint) error                           // Delete board.go
+
+	UpdateCell(id, w, h uint, t T) error
+	ClearCell(id, w, h uint) error
 }
 
 // CollectionBoard is board.go for collections

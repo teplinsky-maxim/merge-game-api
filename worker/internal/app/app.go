@@ -46,7 +46,11 @@ func Run() {
 	services := service.NewServices(dependencies)
 
 	newNewBoardTaskExecutor := executors.NewNewBoardTaskExecutor(services.Board)
-	taskExecutorsManager := task.NewTaskExecutorsManager([]task.Executor{newNewBoardTaskExecutor})
+	newMoveItemTaskExecutor := executors.NewMoveItemTaskExecutor(services.Board)
+	taskExecutorsManager := task.NewTaskExecutorsManager([]task.Executor{
+		newNewBoardTaskExecutor,
+		newMoveItemTaskExecutor,
+	})
 
 	err = task.StartPullTasks(&rmq, taskExecutorsManager, services.Task)
 	if err != nil {

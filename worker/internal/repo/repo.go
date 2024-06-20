@@ -21,8 +21,10 @@ type Board[T any] interface {
 	GetBoard(ctx context.Context, id uint) (board.Board[T], error)
 	GetBoardByCoordinates(ctx context.Context, id, w, h uint) (T, error)
 	CreateBoard(ctx context.Context, w, h uint) (board.Board[T], uint, error)
-	UpdateBoard(ctx context.Context, id uint, board *board.Board[T]) error
 	DeleteBoard(ctx context.Context, id uint) error
+
+	UpdateCell(ctx context.Context, id, w, h uint, t T) error
+	ClearCell(ctx context.Context, id, w, h uint) error
 }
 
 // CollectionBoard is board.go for collections
@@ -35,6 +37,9 @@ type CollectionBoard interface {
 type RedisBoard[T any] interface {
 	CreateBoard(ctx context.Context, board board.Board[T], boardId uint) error
 	GetBoardByCoordinates(ctx context.Context, id, w, h uint) (T, error)
+
+	UpdateCell(ctx context.Context, id, w, h uint, t T) error
+	ClearCell(ctx context.Context, id, w, h uint) error
 }
 
 // RedisCollectionBoard is to store board.go with collection in redis

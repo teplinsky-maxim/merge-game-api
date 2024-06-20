@@ -19,7 +19,7 @@ type Collection interface {
 
 type Task interface {
 	CreateTaskNewBoard(ctx context.Context, width, height uint) (taskEntity.Task, error)
-	CreateTaskMoveItem(ctx context.Context, boardId, w1, h1, w2, h2 uint) (taskEntity.IDType, error)
+	CreateTaskMoveItem(ctx context.Context, boardId, w1, h1, w2, h2 uint) (taskEntity.Task, error)
 	CreateTaskMergeItems(ctx context.Context, boardId, w1, h1, w2, h2 uint) (taskEntity.IDType, error)
 	CreateTaskClickItem(ctx context.Context, boardId, w1, h1 uint) (taskEntity.IDType, error)
 }

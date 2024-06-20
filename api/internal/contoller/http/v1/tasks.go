@@ -16,7 +16,8 @@ type taskRoutes struct {
 func NewTasksRouter(router *fiber.Router, service service.Task) {
 	r := &taskRoutes{taskService: service}
 
-	(*router).Add("POST", "/task", r.createTask())
+	(*router).Add("POST", "/task/board", r.handleCreateBoardTask())
+	(*router).Add("POST", "/task/move", r.handleMoveItemTask())
 }
 
 func sendTaskUUID(c *fiber.Ctx, uuid uuid.UUID) error {
@@ -25,7 +26,7 @@ func sendTaskUUID(c *fiber.Ctx, uuid uuid.UUID) error {
 	})
 }
 
-func (r *taskRoutes) createTask() fiber.Handler {
+func (r *taskRoutes) handleCreateBoardTask() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		body := new(task.CreateNewBoardTaskInput)
 		err := c.BodyParser(body)
@@ -35,6 +36,24 @@ func (r *taskRoutes) createTask() fiber.Handler {
 
 		ctx := context.Background()
 		createdTask, err := r.taskService.CreateTaskNewBoard(ctx, body.Width, body.Height)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(createdTask)
+	}
+}
+
+func (r *taskRoutes) handleMoveItemTask() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		body := new(task.MoveItemTaskInput)
+		err := c.BodyParser(body)
+		if err != nil {
+			return sendError(c, http.StatusBadRequest, err)
+		}
+
+		ctx := context.Background()
+		createdTask, err := r.taskService.CreateTaskMoveItem(ctx, body.BoardID, body.W1, body.H1, body.W2, body.H2)
 		if err != nil {
 			return err
 		}
