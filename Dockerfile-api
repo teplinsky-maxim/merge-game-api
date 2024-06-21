@@ -1,0 +1,17 @@
+#FROM ubuntu:latest
+FROM golang:1.21 as builder
+
+WORKDIR /merge-api
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /merge-api/executable /merge-api/api/cmd/merge
+
+FROM alpine:latest
+
+WORKDIR /merge-api
+COPY --from=builder /merge-api .
+
+CMD ["/merge-api/executable"]
