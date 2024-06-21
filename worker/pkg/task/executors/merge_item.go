@@ -62,7 +62,7 @@ func (n *MergeItemsTaskExecutor) Execute(t *task.Task) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = (*n.service).UpdateCell(args.BoardID, args.W1, args.W2, nextItem)
+	err = (*n.service).UpdateCell(args.BoardID, args.W1, args.H1, nextItem)
 	if err != nil {
 		return nil, err
 	}

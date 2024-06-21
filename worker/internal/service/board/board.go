@@ -72,6 +72,11 @@ func (r *CollectionBoardService) ClearCell(id, w, h uint) error {
 	return (*r.repo).ClearCell(ctx, id, w, h)
 }
 
+func (r *CollectionBoardService) FindEmptyCell(id uint) (uint, uint, error) {
+	ctx := context.Background()
+	return (*r.repo).FindEmptyCell(ctx, id)
+}
+
 func (r *CollectionBoardService) DeleteBoard(id uint) error {
 	//TODO implement me
 	panic("implement me")

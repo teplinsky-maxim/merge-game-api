@@ -77,3 +77,26 @@ func NewMergeItemsTaskArgs(boardId, w1, h1, w2, h2 uint) MergeItemsTaskArgs {
 		H2:      h2,
 	}
 }
+
+type ClickItemTaskArgs struct {
+	BoardID uint `json:"board_id"`
+	W1      uint `json:"w1"`
+	H1      uint `json:"h1"`
+}
+
+type ClickItemTaskResult struct {
+	Result bool   `json:"result"`
+	Reason string `json:"reason"`
+}
+
+func (a *ClickItemTaskArgs) MarshalJSON() ([]byte, error) {
+	return json.Marshal(*a)
+}
+
+func NewClickItemTaskArgs(boardId, w1, h1 uint) ClickItemTaskArgs {
+	return ClickItemTaskArgs{
+		BoardID: boardId,
+		W1:      w1,
+		H1:      h1,
+	}
+}

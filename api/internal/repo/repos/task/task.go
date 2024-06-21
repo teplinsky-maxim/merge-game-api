@@ -40,6 +40,15 @@ func (r *TaskRepo) CreateTaskMergeItems(ctx context.Context, boardId, w1, h1, w2
 	return addTask(ctx, r, task2.MergeItems, marshalledArgs)
 }
 
+func (r *TaskRepo) CreateTaskClickItem(ctx context.Context, boardId, w1, h1 uint) (task2.Task, error) {
+	args := task2.NewClickItemTaskArgs(boardId, w1, h1)
+	marshalledArgs, err := args.MarshalJSON()
+	if err != nil {
+		return task2.Task{}, err
+	}
+	return addTask(ctx, r, task2.ClickItem, marshalledArgs)
+}
+
 func addTask(ctx context.Context, r *TaskRepo, taskType task2.Type, marshalledArgs json.RawMessage) (task2.Task, error) {
 	tx, err := r.database.DB.Begin(ctx)
 	if err != nil {

@@ -3,6 +3,7 @@ package board
 import (
 	"context"
 	"errors"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"merge-api/shared/pkg/board"
@@ -17,6 +18,7 @@ type PgxTxType string
 const TxKey = PgxTxType("tx")
 
 var CoordinatesOutOfBoundsError = errors.New("coordinates out of bounds error")
+var NoFreeCellsError = errors.New("no free cells are in the board")
 
 type Repo struct {
 	database *database.Database
@@ -193,6 +195,60 @@ func (r *Repo) ClearCell(ctx context.Context, id, w, h uint) error {
 	}
 
 	return err
+}
+
+func (r *Repo) FindEmptyCell(ctx context.Context, id uint) (uint, uint, error) {
+	conn, err := r.database.DB.Acquire(ctx)
+	if err != nil {
+		return 0, 0, err
+	}
+	defer conn.Release()
+
+	query := fmt.Sprintf(`
+WITH board_dimensions AS (SELECT b.id AS board_id, b.width, b.height
+                          FROM boards b
+                          WHERE b.id = %d),
+     possible_cells AS (SELECT generate_series(1, (SELECT width FROM board_dimensions))  AS cell_w,
+                               generate_series(1, (SELECT height FROM board_dimensions)) AS cell_h,
+                               (SELECT board_id FROM board_dimensions)                   AS board_id),
+     all_possible_cells AS (SELECT pw.cell_w, ph.cell_h, pw.board_id
+                            FROM possible_cells pw
+                                     CROSS JOIN possible_cells ph
+                            WHERE pw.cell_w <= (SELECT width FROM board_dimensions)
+                              AND ph.cell_h <= (SELECT height FROM board_dimensions)),
+     occupied_cells AS (SELECT cell_w, cell_h, board_id
+                        FROM board_cells
+                        WHERE board_id = %d)
+SELECT apc.cell_w, apc.cell_h
+FROM all_possible_cells apc
+         LEFT JOIN occupied_cells oc
+                   ON apc.cell_w = oc.cell_w
+                       AND apc.cell_h = oc.cell_h
+                       AND apc.board_id = oc.board_id
+WHERE oc.cell_w IS NULL
+  AND oc.cell_h IS NULL
+LIMIT 1;
+`, id, id)
+
+	var w, h uint
+	rows, err := conn.Query(ctx, query)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	for rows.Next() {
+		err = rows.Err()
+		if err != nil {
+			return 0, 0, err
+		} else {
+			err = rows.Scan(&w, &h)
+			if err != nil {
+				return 0, 0, err
+			}
+			return w, h, nil
+		}
+	}
+	return 0, 0, NoFreeCellsError
 }
 
 func (r *Repo) DeleteBoard(ctx context.Context, id uint) error {

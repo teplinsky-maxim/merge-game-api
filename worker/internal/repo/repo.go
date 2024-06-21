@@ -26,6 +26,7 @@ type Board[T any] interface {
 
 	UpdateCell(ctx context.Context, id, w, h uint, t T) error
 	ClearCell(ctx context.Context, id, w, h uint) error
+	FindEmptyCell(ctx context.Context, id uint) (uint, uint, error)
 }
 
 // CollectionBoard is board.go for collections
@@ -50,7 +51,9 @@ type RedisCollectionBoard interface {
 
 type Collection interface {
 	GetNextCollectionItem(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
+	GetItemProduceResult(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
 	IsItemMergeable(ctx context.Context, item pkg.CollectionItem) (bool, error)
+	IsItemClickable(ctx context.Context, item pkg.CollectionItem) (bool, error)
 }
 
 type Repositories struct {

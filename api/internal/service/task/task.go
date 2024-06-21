@@ -49,9 +49,16 @@ func (r *TaskService) CreateTaskMergeItems(ctx context.Context, boardId, w1, h1,
 	return createdTask, nil
 }
 
-func (r *TaskService) CreateTaskClickItem(ctx context.Context, boardId, w1, h1 uint) (taskEntity.IDType, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *TaskService) CreateTaskClickItem(ctx context.Context, boardId, w1, h1 uint) (taskEntity.Task, error) {
+	createdTask, err := r.repo.CreateTaskClickItem(ctx, boardId, w1, h1)
+	if err != nil {
+		return taskEntity.Task{}, err
+	}
+	err = tasks.SendTask(r.rmq, createdTask)
+	if err != nil {
+		return taskEntity.Task{}, err
+	}
+	return createdTask, nil
 }
 
 func NewTaskService(repo repo.Task, rmq *rabbitmq.RabbitMQ) *TaskService {

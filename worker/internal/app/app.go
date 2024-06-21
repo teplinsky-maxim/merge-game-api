@@ -48,10 +48,13 @@ func Run() {
 	newNewBoardTaskExecutor := executors.NewNewBoardTaskExecutor(services.Board)
 	newMoveItemTaskExecutor := executors.NewMoveItemTaskExecutor(services.Board)
 	newMergeItemsTaskExecutor := executors.NewMergeItemsTaskExecutor(services.Board, services.Collection)
+	newClickItemTaskExecutor := executors.NewClickItemTaskExecutor(services.Board, services.Collection)
+
 	taskExecutorsManager := task.NewTaskExecutorsManager([]task.Executor{
 		newNewBoardTaskExecutor,
 		newMoveItemTaskExecutor,
 		newMergeItemsTaskExecutor,
+		newClickItemTaskExecutor,
 	})
 
 	err = task.StartPullTasks(&rmq, taskExecutorsManager, services.Task)

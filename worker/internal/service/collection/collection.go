@@ -14,8 +14,16 @@ func (r *CollectionService) GetNextCollectionItem(ctx context.Context, item pkg.
 	return (*r.repo).GetNextCollectionItem(ctx, item)
 }
 
+func (r *CollectionService) GetItemProduceResult(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error) {
+	return (*r.repo).GetItemProduceResult(ctx, item)
+}
+
 func (r *CollectionService) IsItemMergeable(ctx context.Context, item pkg.CollectionItem) (bool, error) {
 	return (*r.repo).IsItemMergeable(ctx, item)
+}
+
+func (r *CollectionService) IsItemClickable(ctx context.Context, item pkg.CollectionItem) (bool, error) {
+	return (*r.repo).IsItemClickable(ctx, item)
 }
 
 func NewCollectionService(repo repo.Collection) *CollectionService {

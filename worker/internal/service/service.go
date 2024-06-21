@@ -21,6 +21,7 @@ type Board[T any] interface {
 
 	UpdateCell(id, w, h uint, t T) error
 	ClearCell(id, w, h uint) error
+	FindEmptyCell(id uint) (uint, uint, error)
 }
 
 // CollectionBoard is board.go for collections
@@ -37,7 +38,9 @@ type Task interface {
 
 type Collection interface {
 	GetNextCollectionItem(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
+	GetItemProduceResult(ctx context.Context, item pkg.CollectionItem) (pkg.CollectionItem, error)
 	IsItemMergeable(ctx context.Context, item pkg.CollectionItem) (bool, error)
+	IsItemClickable(ctx context.Context, item pkg.CollectionItem) (bool, error)
 }
 
 type Services struct {
