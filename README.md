@@ -11,3 +11,6 @@ Base idea
 
 ![img.png](img.png)
 
+### Things left to implement
+
+- [ ] Sync board states across redis and postgresql on board-access level
