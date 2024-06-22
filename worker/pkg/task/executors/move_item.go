@@ -59,6 +59,8 @@ func (n *MoveItemTaskExecutor) Execute(t *task.Task) (any, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else if errors.Is(err1, redis_board.BoardCellEmptyError) && errors.Is(err2, redis_board.BoardCellEmptyError) {
+		return nil, nil
 	} else if !atCoords1.Equal(atCoords2) {
 		err = (*n.service).UpdateCell(args.BoardID, args.W2, args.H2, atCoords1)
 		if err != nil {
