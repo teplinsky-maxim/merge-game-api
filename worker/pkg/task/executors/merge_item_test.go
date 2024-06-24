@@ -2,48 +2,35 @@ package executors
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/google/uuid"
+	"merge-api/shared/config"
 	"merge-api/shared/entity/task"
-	"merge-api/worker/internal/repo/repos/collection/redis_board"
+	"merge-api/shared/pkg/database"
+	collectionRepo "merge-api/worker/internal/repo/repos/collection"
 	"merge-api/worker/internal/service"
-	"merge-api/worker/pkg"
+	"merge-api/worker/internal/service/collection"
 	"reflect"
 	"testing"
 	"time"
 )
 
-func createBoard(service service.CollectionBoard) uint {
-	_, boardId, err := service.CreateBoard(10, 10)
+func prepareCollectionService() (error, service.Collection) {
+	conf, err := config.NewConfigWithDiscover(nil)
 	if err != nil {
 		panic(err)
 	}
-
-	item1 := pkg.NewCollectionItemImpl(1, 1)
-	item2 := pkg.NewCollectionItemImpl(1, 2)
-	item3 := pkg.NewCollectionItemImpl(2, 1)
-	err = service.UpdateCell(boardId, 1, 2, &item1)
+	connection, err := database.NewDatabaseTestConnection(conf)
 	if err != nil {
 		panic(err)
 	}
-	err = service.UpdateCell(boardId, 2, 4, &item1)
-	if err != nil {
-		panic(err)
-	}
-	err = service.UpdateCell(boardId, 4, 2, &item2)
-	if err != nil {
-		panic(err)
-	}
-	err = service.UpdateCell(boardId, 8, 9, &item3)
-	if err != nil {
-		panic(err)
-	}
-
-	return boardId
+	repo := collectionRepo.NewCollectionRepo((*database.Database)(&connection))
+	collectionService := collection.NewCollectionService(repo)
+	return nil, collectionService
 }
 
-func TestMoveItemTaskExecutor_Execute(t *testing.T) {
+func TestMergeItemsTaskExecutor_Execute(t *testing.T) {
 	err, connection, collectionBoardService := prepareDatabaseWithService()
+	err, collectionService := prepareCollectionService()
 	if err != nil {
 		panic(err)
 	}
@@ -53,77 +40,58 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 	boardId := createBoard(collectionBoardService)
 
 	type fields struct {
-		service *service.CollectionBoard
+		service           *service.CollectionBoard
+		collectionService *service.Collection
 	}
 	defaultFields := fields{
-		service: &collectionBoardService,
+		service:           &collectionBoardService,
+		collectionService: &collectionService,
 	}
 	type args struct {
 		t *task.Task
 	}
 
-	firstEmptySecondItemArgs, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 1, 1, 1, 2))
+	bothEmptyArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 7, 7, 6, 6))
 	if err != nil {
 		panic(err)
 	}
-	firstEmptySecondItemCheckFunction := func() bool {
-		//became item{1, 1}
-		at1, err := collectionBoardService.GetBoardByCoordinates(boardId, 1, 1)
+
+	sameCoordsArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 7, 7, 7, 7))
+	if err != nil {
+		panic(err)
+	}
+
+	firstEmptySecondItemArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 1, 2, 7, 7))
+	if err != nil {
+		panic(err)
+	}
+
+	firstItemSecondEmptyArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 7, 7, 1, 2))
+	if err != nil {
+		panic(err)
+	}
+
+	sameCollectionDifferentItemsArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 1, 2, 4, 2))
+	if err != nil {
+		panic(err)
+	}
+
+	differentCollectionsSameItemsArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 1, 2, 8, 9))
+	if err != nil {
+		panic(err)
+	}
+
+	validItemsArgs, err := json.Marshal(task.NewMergeItemsTaskArgs(boardId, 1, 2, 2, 4))
+	if err != nil {
+		panic(err)
+	}
+	validItemsCheckFunction := func() bool {
+		at, err := collectionBoardService.GetBoardByCoordinates(boardId, 1, 2)
 		if err != nil {
 			panic(err)
 		}
-		//became empty
-		_, err = collectionBoardService.GetBoardByCoordinates(boardId, 1, 2)
-		if !errors.Is(err, redis_board.BoardCellEmptyError) {
-			return false
-		}
-		cId, cIId := at1.GetCollectionInfo()
-		return cId == 1 && cIId == 1
-	}
-
-	firstItemSecondEmptyArgs, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 2, 4, 2, 2))
-	if err != nil {
-		panic(err)
-	}
-	firstItemSecondEmptyCheckFunction := func() bool {
-		_, err = collectionBoardService.GetBoardByCoordinates(boardId, 2, 4)
-		if !errors.Is(err, redis_board.BoardCellEmptyError) {
-			return false
-		}
-		at2, err := collectionBoardService.GetBoardByCoordinates(boardId, 2, 2)
-		if err != nil {
-			panic(err)
-		}
-		cId, cIId := at2.GetCollectionInfo()
-		return cId == 1 && cIId == 1
-	}
-
-	bothEmpty, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 3, 5, 7, 8))
-	if err != nil {
-		panic(err)
-	}
-	bothEmptyCheckFunction := func() bool {
-		_, err = collectionBoardService.GetBoardByCoordinates(boardId, 3, 5)
-		if !errors.Is(err, redis_board.BoardCellEmptyError) {
-			return false
-		}
-		_, err = collectionBoardService.GetBoardByCoordinates(boardId, 7, 8)
-		return errors.Is(err, redis_board.BoardCellEmptyError)
-	}
-
-	sameCoords, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 1, 1, 1, 1))
-	if err != nil {
-		panic(err)
-	}
-
-	sameCoordsFreeCell, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 9, 9, 9, 9))
-	if err != nil {
-		panic(err)
-	}
-
-	oobMove, err := json.Marshal(task.NewMoveItemTaskArgs(boardId, 1, 1, 100, 200))
-	if err != nil {
-		panic(err)
+		cId, cIId := at.GetCollectionInfo()
+		return cId == 1 && cIId == 2
 	}
 
 	tests := []struct {
@@ -135,13 +103,49 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 		wantErr       bool
 	}{
 		{
-			name:   "first cell is empty, second one has item",
+			name:   "both cell are empty",
 			fields: defaultFields,
 			args: args{
 				t: &task.Task{
 					ID:                   1,
 					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
+					Type:                 task.MergeItems,
+					Status:               task.Scheduled,
+					Args:                 bothEmptyArgs,
+					TimeCreated:          time.Time{},
+					TimeStartedExecuting: time.Time{},
+					TimeDoneExecuting:    time.Time{},
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:   "same coordinates",
+			fields: defaultFields,
+			args: args{
+				t: &task.Task{
+					ID:                   1,
+					UUID:                 uuid.New(),
+					Type:                 task.MergeItems,
+					Status:               task.Scheduled,
+					Args:                 sameCoordsArgs,
+					TimeCreated:          time.Time{},
+					TimeStartedExecuting: time.Time{},
+					TimeDoneExecuting:    time.Time{},
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:   "first empty, second item",
+			fields: defaultFields,
+			args: args{
+				t: &task.Task{
+					ID:                   1,
+					UUID:                 uuid.New(),
+					Type:                 task.MergeItems,
 					Status:               task.Scheduled,
 					Args:                 firstEmptySecondItemArgs,
 					TimeCreated:          time.Time{},
@@ -149,16 +153,17 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 					TimeDoneExecuting:    time.Time{},
 				},
 			},
-			checkFunction: &firstEmptySecondItemCheckFunction,
+			want:    nil,
+			wantErr: true,
 		},
 		{
-			name:   "second cell is empty, first one has item",
+			name:   "second empty, first item",
 			fields: defaultFields,
 			args: args{
 				t: &task.Task{
 					ID:                   1,
 					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
+					Type:                 task.MergeItems,
 					Status:               task.Scheduled,
 					Args:                 firstItemSecondEmptyArgs,
 					TimeCreated:          time.Time{},
@@ -166,35 +171,19 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 					TimeDoneExecuting:    time.Time{},
 				},
 			},
-			checkFunction: &firstItemSecondEmptyCheckFunction,
+			want:    nil,
+			wantErr: true,
 		},
 		{
-			name:   "both empty",
+			name:   "both item from the same collection but different",
 			fields: defaultFields,
 			args: args{
 				t: &task.Task{
 					ID:                   1,
 					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
+					Type:                 task.MergeItems,
 					Status:               task.Scheduled,
-					Args:                 bothEmpty,
-					TimeCreated:          time.Time{},
-					TimeStartedExecuting: time.Time{},
-					TimeDoneExecuting:    time.Time{},
-				},
-			},
-			checkFunction: &bothEmptyCheckFunction,
-		},
-		{
-			name:   "same coordinates item cell",
-			fields: defaultFields,
-			args: args{
-				t: &task.Task{
-					ID:                   1,
-					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
-					Status:               task.Scheduled,
-					Args:                 sameCoords,
+					Args:                 sameCollectionDifferentItemsArgs,
 					TimeCreated:          time.Time{},
 					TimeStartedExecuting: time.Time{},
 					TimeDoneExecuting:    time.Time{},
@@ -204,15 +193,15 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:   "same coordinates free cell",
+			name:   "both item from the different collections but items are equal",
 			fields: defaultFields,
 			args: args{
 				t: &task.Task{
 					ID:                   1,
 					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
+					Type:                 task.MergeItems,
 					Status:               task.Scheduled,
-					Args:                 sameCoordsFreeCell,
+					Args:                 differentCollectionsSameItemsArgs,
 					TimeCreated:          time.Time{},
 					TimeStartedExecuting: time.Time{},
 					TimeDoneExecuting:    time.Time{},
@@ -222,28 +211,28 @@ func TestMoveItemTaskExecutor_Execute(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:   "can not move out of bounds",
+			name:   "valid items to merge",
 			fields: defaultFields,
 			args: args{
 				t: &task.Task{
 					ID:                   1,
 					UUID:                 uuid.New(),
-					Type:                 task.MoveItem,
+					Type:                 task.MergeItems,
 					Status:               task.Scheduled,
-					Args:                 oobMove,
+					Args:                 validItemsArgs,
 					TimeCreated:          time.Time{},
 					TimeStartedExecuting: time.Time{},
 					TimeDoneExecuting:    time.Time{},
 				},
 			},
-			want:    nil,
-			wantErr: true,
+			checkFunction: &validItemsCheckFunction,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &MoveItemTaskExecutor{
-				service: tt.fields.service,
+			n := &MergeItemsTaskExecutor{
+				service:           tt.fields.service,
+				collectionService: tt.fields.collectionService,
 			}
 			got, err := n.Execute(tt.args.t)
 			if tt.checkFunction != nil {

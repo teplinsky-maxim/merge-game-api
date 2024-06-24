@@ -7,7 +7,10 @@ import (
 	"merge-api/worker/internal/service"
 )
 
-var IncorrectBoardDimensions = errors.New("incorrect board dimension")
+var (
+	IncorrectBoardDimensions = errors.New("incorrect board dimension")
+	BoardIsTooBig            = errors.New("board is too big")
+)
 
 type NewBoardTaskExecutor struct {
 	service *service.CollectionBoard
@@ -25,6 +28,9 @@ func (n *NewBoardTaskExecutor) Execute(t *task.Task) (any, error) {
 	}
 	if args.Width == 0 || args.Height == 0 {
 		return nil, IncorrectBoardDimensions
+	}
+	if args.Width*args.Height > 1000 {
+		return nil, BoardIsTooBig
 	}
 	_, boardId, err := (*n.service).CreateBoard(args.Width, args.Height)
 	if err != nil {

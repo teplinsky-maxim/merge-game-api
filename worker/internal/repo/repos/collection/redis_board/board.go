@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	goRedis "github.com/redis/go-redis/v9"
 	"merge-api/shared/pkg/board"
 	"merge-api/worker/pkg"
 	"merge-api/worker/pkg/redis"
@@ -13,43 +12,101 @@ import (
 )
 
 const BoardRedisKey = "board"
-
-type PipelineTxType string
-
-const TxKey = PipelineTxType("tx")
+const BoardRedisFieldNameForSize = "size"
 
 var BoardNotLoadedInRedisError = errors.New("board is not loaded in redis")
 var BoardCellEmptyError = errors.New("board cell is empty")
+var CoordinatesOutOfBoundError = errors.New("coordinates out of bound error")
 
 type Repo struct {
 	redis *redis.Redis
 }
 
+// TODO: move all key-makers to an interface
 func makeRedisBoardKey(boardId uint) string {
 	return fmt.Sprintf("%v:%v", BoardRedisKey, boardId)
+}
+
+func makeRedisBoardFieldNameForSize() string {
+	return BoardRedisFieldNameForSize
 }
 
 func makeRedisCoordinatesString(w, h uint) string {
 	return fmt.Sprintf("%v:%v", w, h)
 }
 
+func makeRedisBoardSize(w, h uint) string {
+	return fmt.Sprintf("%v:%v", w, h)
+}
+
+func (r *Repo) keyInRedis(ctx context.Context, key string) (bool, error) {
+	keyExists, err := r.redis.Client.Exists(ctx, key).Result()
+	if err != nil {
+		return false, err
+	}
+	return keyExists == 1, nil
+}
+
+func (r *Repo) boardInRedis(ctx context.Context, boardId uint) (bool, error) {
+	boardKey := makeRedisBoardKey(boardId)
+	return r.keyInRedis(ctx, boardKey)
+}
+
+func (r *Repo) getMaxBoardSize(ctx context.Context, boardId uint) (uint, uint, error) {
+	boardKey := makeRedisBoardKey(boardId)
+	boardInRedis, err := r.boardInRedis(ctx, boardId)
+	if err != nil {
+		return 0, 0, err
+	}
+	if !boardInRedis {
+		return 0, 0, BoardNotLoadedInRedisError
+	}
+
+	sizeResult := r.redis.Client.HGet(ctx, boardKey, makeRedisBoardFieldNameForSize())
+	boardSize, err := sizeResult.Result()
+	boardSizeWH := strings.Split(boardSize, ":")
+	if len(boardSizeWH) != 2 {
+		return 0, 0, errors.New("somehow error key in redis is wrong")
+	}
+	boardW, boardH := boardSizeWH[0], boardSizeWH[1]
+
+	boardWNumber, err := strconv.ParseUint(boardW, 10, 32)
+	if err != nil {
+		return 0, 0, err
+	}
+	boardHNumber, err := strconv.ParseUint(boardH, 10, 32)
+	if err != nil {
+		return 0, 0, err
+	}
+	return uint(boardWNumber), uint(boardHNumber), nil
+}
+
+func (r *Repo) isOutOfBounds(w, h, maxW, maxH uint) bool {
+	return w > maxW || h > maxH
+}
+
 func (r *Repo) CreateBoard(ctx context.Context, board board.Board[pkg.CollectionItem], boardId uint) error {
-	redisKey := makeRedisBoardKey(boardId)
-	err := r.redis.Client.HSet(ctx, redisKey, "", "").Err()
+	boardKey := makeRedisBoardKey(boardId)
+	w := board.Width()
+	h := board.Height()
+
+	err := r.redis.Client.HSet(ctx, boardKey, makeRedisBoardFieldNameForSize(), makeRedisBoardSize(w, h)).Err()
 	return err
 }
 
 func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.CollectionItem, error) {
-	coordinatesString := makeRedisCoordinatesString(w, h)
-	boardKey := makeRedisBoardKey(id)
-
-	boardInRedis, err := r.redis.Client.Exists(ctx, boardKey).Result()
+	maxW, maxH, err := r.getMaxBoardSize(ctx, id)
 	if err != nil {
-		return nil, err
+		if !errors.Is(err, BoardNotLoadedInRedisError) {
+			return nil, err
+		}
 	}
-	if boardInRedis != 1 {
-		return nil, BoardNotLoadedInRedisError
+	if r.isOutOfBounds(w, h, maxW, maxH) {
+		return nil, CoordinatesOutOfBoundError
 	}
+
+	boardKey := makeRedisBoardKey(id)
+	coordinatesString := makeRedisCoordinatesString(w, h)
 
 	result, err := r.redis.Client.HGet(ctx, boardKey, coordinatesString).Result()
 	if err != nil {
@@ -77,61 +134,39 @@ func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.Co
 }
 
 func (r *Repo) UpdateCell(ctx context.Context, id, w, h uint, collectionItem pkg.CollectionItem) error {
-	txWasCreatedHere := false
-	pipeline, ok := ctx.Value(TxKey).(goRedis.Pipeliner)
-	if !ok {
-		txWasCreatedHere = true
-		pipeline = r.redis.Client.TxPipeline()
-	}
-
-	coordinatesString := makeRedisCoordinatesString(w, h)
-	boardKey := makeRedisBoardKey(id)
-
-	boardInRedis, err := r.redis.Client.Exists(ctx, boardKey).Result()
+	maxW, maxH, err := r.getMaxBoardSize(ctx, id)
 	if err != nil {
-		return err
-	}
-	if boardInRedis != 1 {
-		return BoardNotLoadedInRedisError
-	}
-
-	_ = pipeline.HSet(ctx, boardKey, coordinatesString, collectionItem.ToRedisString())
-	if txWasCreatedHere {
-		_, err = pipeline.Exec(ctx)
-		if err != nil {
+		if !errors.Is(err, BoardNotLoadedInRedisError) {
 			return err
 		}
 	}
-	return nil
+	if r.isOutOfBounds(w, h, maxW, maxH) {
+		return CoordinatesOutOfBoundError
+	}
+
+	boardKey := makeRedisBoardKey(id)
+	coordinatesString := makeRedisCoordinatesString(w, h)
+
+	err = r.redis.Client.HSet(ctx, boardKey, coordinatesString, collectionItem.ToRedisString()).Err()
+	return err
 }
 
 func (r *Repo) ClearCell(ctx context.Context, id, w, h uint) error {
-	txWasCreatedHere := false
-	pipeline, ok := ctx.Value(TxKey).(goRedis.Pipeliner)
-	if !ok {
-		txWasCreatedHere = true
-		pipeline = r.redis.Client.TxPipeline()
-	}
-
-	coordinatesString := makeRedisCoordinatesString(w, h)
-	boardKey := makeRedisBoardKey(id)
-
-	boardInRedis, err := r.redis.Client.Exists(ctx, boardKey).Result()
+	maxW, maxH, err := r.getMaxBoardSize(ctx, id)
 	if err != nil {
-		return err
-	}
-	if boardInRedis != 1 {
-		return BoardNotLoadedInRedisError
-	}
-
-	_ = pipeline.HDel(ctx, boardKey, coordinatesString)
-	if txWasCreatedHere {
-		_, err = pipeline.Exec(ctx)
-		if err != nil {
+		if !errors.Is(err, BoardNotLoadedInRedisError) {
 			return err
 		}
 	}
-	return nil
+	if r.isOutOfBounds(w, h, maxW, maxH) {
+		return CoordinatesOutOfBoundError
+	}
+
+	boardKey := makeRedisBoardKey(id)
+	coordinatesString := makeRedisCoordinatesString(w, h)
+
+	err = r.redis.Client.HDel(ctx, boardKey, coordinatesString).Err()
+	return err
 }
 
 func NewRedisBoardRepo(redis *redis.Redis) *Repo {
