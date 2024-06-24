@@ -22,7 +22,6 @@ type Repo struct {
 	redis *redis.Redis
 }
 
-// TODO: move all key-makers to an interface
 func makeRedisBoardKey(boardId uint) string {
 	return fmt.Sprintf("%v:%v", BoardRedisKey, boardId)
 }

@@ -62,7 +62,6 @@ func (r *Repo) GetBoardByCoordinates(ctx context.Context, id, w, h uint) (pkg.Co
 		if err != nil {
 			return nil, err
 		} else {
-			// TODO: in case of oob make sure it is also checked in redis
 			err = rows.Scan(&collectionId, &collectionItemId, &maxW, &maxH)
 			if w > maxW || h > maxH {
 				return nil, CoordinatesOutOfBoundsError
